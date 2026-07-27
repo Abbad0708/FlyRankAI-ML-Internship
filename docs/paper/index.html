@@ -84,8 +84,12 @@
 <h2 id="abstract">Abstract</h2>
 <div class="abstract">
   <p>
-    Content teams carry review backlogs far larger than they can clear, so the practical question is not
-    <em>which pages are declining</em> but <em>which pages to open first</em>. Using an anonymised
+    FlyRank publishes content straight into client websites and then watches it decay &mdash; rankings
+    slip, clicks fall, and most teams notice a quarter too late. The pages that need attention are
+    already surfaced by hand-written rules: thresholds and if-this-then-that flags that work and run in
+    production. But review backlogs are far larger than any team can clear, so the practical question is
+    not <em>which pages are declining</em> but <em>which pages to open first</em> &mdash; and that is a
+    ranking problem, exactly where a fixed rule runs out. Using an anonymised
     90-day snapshot of 30,000 pages across 32 pseudonymised clients from the FlyRank ML Internship
     dataset, I built a ranked review queue and compared it against a transparent hand-written rule on
     identical client-grouped splits. A random forest reached a precision@50 of roughly
@@ -100,6 +104,21 @@
 
 <!-- 2. INTRODUCTION -->
 <h2 id="introduction">Introduction: the decision this supports</h2>
+<p>
+  FlyRank runs the full content cycle for its clients &mdash; research, write, publish into the site,
+  then watch the search data and optimise. The hard part is the last step. A page that ranked well in
+  March quietly loses position through April and May, and the drop is only obvious once the traffic is
+  already gone. The product handles this today with hand-written flags: a health score, quick-win tags,
+  needs-attention markers, all built from thresholds someone chose. They work. What they cannot do is
+  put a thousand flagged pages in a sensible order.
+</p>
+<p>
+  That is the gap this paper works in. The rule answers <em>is this page in trouble?</em>; the editor
+  needs an answer to <em>which of these do I open on Monday morning?</em> So the hand-written rule is
+  not the enemy here &mdash; it is the baseline, reimplemented transparently in
+  <code>w04_baseline_score.ipynb</code> and given the same splits and the same metric as every model
+  that tries to beat it.
+</p>
 <p>
   An editor responsible for several client sites opens their week with a list far longer than the week.
   In this dataset <strong>9,961 pages</strong> are simultaneously losing impressions and still earning
