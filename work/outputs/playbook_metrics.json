@@ -1,0 +1,116 @@
+{
+  "seed": 42,
+  "sklearn_version": "1.9.0",
+  "scoring": "out-of-fold, GroupKFold(5) by client_id",
+  "visibility_floor_impressions_90d": 500,
+  "weekly_capacity_assumed": 50,
+  "queue_rows": 16726,
+  "portfolio_rows": 30000,
+  "queue_base_rate": 0.5955,
+  "portfolio_base_rate": 0.5421,
+  "out_of_fold_precision_at_k": {
+    "10": 0.7,
+    "50": 0.84,
+    "100": 0.85
+  },
+  "validated_comparison_ml08": {
+    "base_rate": 0.495,
+    "hand_rule": 0.605,
+    "logistic_regression": 0.735,
+    "random_forest": 0.805,
+    "p50_sd": 0.108,
+    "rf_wins_vs_rule": "7/8 splits"
+  },
+  "confidence_counts": {
+    "medium": 7958,
+    "low": 6023,
+    "high": 2745
+  },
+  "archetype_action_counts": {
+    "deep_and_visible": {
+      "action": "MONITOR",
+      "pages": 2485
+    },
+    "page_one_underperformer": {
+      "action": "FIX CTR",
+      "pages": 3673
+    },
+    "stale_but_visible": {
+      "action": "REFRESH",
+      "pages": 5081
+    },
+    "striking_distance": {
+      "action": "SUPPORT",
+      "pages": 2040
+    },
+    "visible_no_flag": {
+      "action": "MONITOR",
+      "pages": 3447
+    }
+  },
+  "decay_by_freshness": {
+    "0-30": {
+      "n": 20480,
+      "decline_rate": 0.5114
+    },
+    "31-90": {
+      "n": 175,
+      "decline_rate": 0.5886
+    },
+    "91-180": {
+      "n": 9171,
+      "decline_rate": 0.6111
+    },
+    "181+": {
+      "n": 174,
+      "decline_rate": 0.4713
+    }
+  },
+  "value_per_editor_week": {
+    "capacity": 50,
+    "expected_declining_random_order": 29.8,
+    "expected_declining_this_queue": 42.0,
+    "net_gain_pages": 12.2
+  },
+  "monitoring_triggers": {
+    "RETRAIN - queue precision decayed": {
+      "watch": "precision@50 on a human-audited sample of the shipped queue",
+      "trip_if": "< 0.60",
+      "why": "that is the hand-rule's score. Below it the model has stopped earning its place."
+    },
+    "INVESTIGATE - precision moved but may be noise": {
+      "watch": "precision@50, same audit",
+      "trip_if": "drops more than 0.22 below 0.84",
+      "why": "2 sd of the measured split-to-split spread; smaller moves are not signal."
+    },
+    "RETRAIN - label drift": {
+      "watch": "portfolio share of pages labelled declining",
+      "trip_if": "outside 0.44-0.64",
+      "why": "the base rate IS the bar; if it moves, every precision number changes meaning."
+    },
+    "REVIEW - population drift": {
+      "watch": "median days_with_impressions across the portfolio",
+      "trip_if": "moves more than 20% from 81",
+      "why": "the model's strongest feature (ML-08 permutation importance). If its distribution shifts, the ranking rests on different ground."
+    },
+    "REVIEW - new clients entered": {
+      "watch": "client count and the share of queue rows from unseen clients",
+      "trip_if": "> 10% of queue rows come from clients absent at training (now 32 clients)",
+      "why": "one held-out client scored 0.445 in ML-09. New clients are the known failure mode."
+    },
+    "REBUILD - window rolled": {
+      "watch": "age of the 90-day snapshot the scores were computed from",
+      "trip_if": "> 30 days old",
+      "why": "scores describe a fixed window; a third of it is stale after a month."
+    }
+  },
+  "not_automated": [
+    "content edits",
+    "pruning/deletion",
+    "client-facing forecasts",
+    "high-traffic prioritisation",
+    "performance management",
+    "silent scoring of new clients",
+    "auto-refresh scheduling"
+  ]
+}
