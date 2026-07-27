@@ -1,0 +1,113 @@
+{
+  "seed": 42,
+  "sklearn_version": "1.9.0",
+  "splits": 8,
+  "split_design": "GroupShuffleSplit on client_id, 25% of clients held out",
+  "portfolio": {
+    "pages": 30000,
+    "clients": 32,
+    "base_rate": 0.5421
+  },
+  "results_table": {
+    "base rate (floor)": {
+      "precision@50": 0.495,
+      "sd": 0.068,
+      "ROC-AUC": 0.5
+    },
+    "baseline rule (hand-written)": {
+      "precision@50": 0.605,
+      "sd": 0.114,
+      "ROC-AUC": 0.583
+    },
+    "logistic_regression": {
+      "precision@50": 0.735,
+      "sd": 0.12,
+      "ROC-AUC": 0.673
+    },
+    "decision_tree_d3": {
+      "precision@50": 0.622,
+      "sd": 0.126,
+      "ROC-AUC": 0.657
+    },
+    "random_forest": {
+      "precision@50": 0.805,
+      "sd": 0.108,
+      "ROC-AUC": 0.71
+    },
+    "gradient_boosting": {
+      "precision@50": 0.782,
+      "sd": 0.146,
+      "ROC-AUC": 0.712
+    }
+  },
+  "paired": {
+    "random_forest vs baseline rule (hand-written)": {
+      "mean": 0.2,
+      "wins": 7,
+      "of": 8,
+      "worst": -0.2
+    },
+    "logistic_regression vs baseline rule (hand-written)": {
+      "mean": 0.13,
+      "wins": 7,
+      "of": 8,
+      "worst": -0.08
+    },
+    "random_forest vs gradient_boosting": {
+      "mean": 0.022,
+      "wins": 5,
+      "of": 8,
+      "worst": -0.14
+    }
+  },
+  "queue": {
+    "rows": 16726,
+    "base_rate": 0.5955,
+    "out_of_fold_precision_at_50": 0.84,
+    "net_gain_pages_per_week": 12.2
+  },
+  "archetypes": {
+    "deep_and_visible": {
+      "action": "MONITOR",
+      "pages": 2485
+    },
+    "page_one_underperformer": {
+      "action": "FIX CTR",
+      "pages": 3673
+    },
+    "stale_but_visible": {
+      "action": "REFRESH",
+      "pages": 5081
+    },
+    "striking_distance": {
+      "action": "SUPPORT",
+      "pages": 2040
+    },
+    "visible_no_flag": {
+      "action": "MONITOR",
+      "pages": 3447
+    }
+  },
+  "decay_by_freshness": {
+    "0-30": {
+      "n": 20480,
+      "decline_rate": 0.5114
+    },
+    "31-90": {
+      "n": 175,
+      "decline_rate": 0.5886
+    },
+    "91-180": {
+      "n": 9171,
+      "decline_rate": 0.6111
+    },
+    "181+": {
+      "n": 174,
+      "decline_rate": 0.4713
+    }
+  },
+  "leakage_positive_control": {
+    "honest_auc": 0.7304,
+    "with_trend_pct_auc": 0.9999
+  }
+}
