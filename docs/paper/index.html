@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which pages should an editor review first? Ranking a content refresh queue</title>
+<meta name="description" content="A ranked content-review queue built on 30,000 anonymised search-performance records, validated with client-grouped splits against a hand-written baseline.">
+<style>
+  :root{
+    --surface:#fcfcfb; --surface-2:#f4f3ef; --ink:#0b0b0b; --ink-2:#3a3a38;
+    --muted:#52514e; --line:#e2e0da; --accent:#2a78d6; --accent-soft:#eaf1fb;
+    --warn:#eb6834; --warn-soft:#fdeee7;
+    --measure:44rem;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --surface:#161615; --surface-2:#1f1f1d; --ink:#f7f7f5; --ink-2:#d6d5cf;
+      --muted:#a8a69e; --line:#33322e; --accent:#7fb3f0; --accent-soft:#1c2a3b;
+      --warn:#f08a5f; --warn-soft:#33221a;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--surface); color:var(--ink);
+    font:400 17px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--measure); margin:0 auto; padding:0 1.25rem 5rem}
+  header.hero{border-bottom:1px solid var(--line); margin-bottom:2.5rem; padding:3.5rem 0 2.25rem}
+  .kicker{font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:0 0 .9rem}
+  h1{font-size:clamp(1.75rem,4.5vw,2.6rem); line-height:1.18; letter-spacing:-.02em; margin:0 0 1rem; font-weight:700}
+  .byline{color:var(--muted); font-size:.95rem; margin:0}
+  h2{font-size:1.35rem; letter-spacing:-.01em; margin:3.25rem 0 .85rem; padding-top:.4rem; font-weight:700}
+  h3{font-size:1.03rem; margin:2rem 0 .5rem; font-weight:650; color:var(--ink)}
+  p{margin:0 0 1.05rem; color:var(--ink-2)}
+  a{color:var(--accent); text-decoration-thickness:1px; text-underline-offset:2px}
+  strong{color:var(--ink); font-weight:650}
+  code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.88em;
+    background:var(--surface-2); padding:.12em .38em; border-radius:4px; border:1px solid var(--line)
+  }
+  ul,ol{margin:0 0 1.05rem; padding-left:1.3rem; color:var(--ink-2)}
+  li{margin:.35rem 0}
+  .abstract{background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:1.4rem 1.5rem; margin:0 0 1rem}
+  .abstract p:last-child{margin-bottom:0}
+  .callout{border-left:3px solid var(--accent); background:var(--accent-soft); padding:.9rem 1.1rem; border-radius:0 8px 8px 0; margin:1.5rem 0}
+  .callout p{margin:0; color:var(--ink)}
+  .caution{border-left-color:var(--warn); background:var(--warn-soft)}
+  figure{margin:2rem 0}
+  figure img{width:100%; height:auto; display:block; border:1px solid var(--line); border-radius:8px; background:#fff}
+  figcaption{font-size:.87rem; color:var(--muted); margin-top:.6rem; line-height:1.5}
+  .scroller{overflow-x:auto; margin:1.25rem 0; border:1px solid var(--line); border-radius:8px}
+  table{border-collapse:collapse; width:100%; font-size:.92rem; min-width:32rem}
+  th,td{padding:.6rem .8rem; text-align:left; border-bottom:1px solid var(--line)}
+  th{font-weight:650; color:var(--ink); background:var(--surface-2); white-space:nowrap}
+  td{color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
+  tr.highlight td{background:var(--accent-soft); color:var(--ink); font-weight:600}
+  footer{border-top:1px solid var(--line); margin-top:3.5rem; padding-top:1.75rem; font-size:.92rem; color:var(--muted)}
+  footer a{color:var(--accent)}
+  .tag{display:inline-block; font-size:.75rem; letter-spacing:.04em; text-transform:uppercase;
+       color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:.15rem .6rem; margin-right:.4rem}
+  @media (max-width:640px){ body{font-size:16px} .wrap{padding:0 1rem 3.5rem} header.hero{padding:2.5rem 0 1.75rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="kicker">FlyRank ML Internship &middot; Capstone &middot; Search Intelligence</p>
+  <h1>Which pages should an editor review first?</h1>
+  <p class="byline">
+    Ranking a content-refresh queue on 30,000 anonymised search-performance records &mdash;
+    and measuring, honestly, how much the ranking is worth.
+  </p>
+  <p class="byline" style="margin-top:.85rem">
+    <span class="tag">Lane 2</span><span class="tag">Ranking</span><span class="tag">Precision@50</span>
+  </p>
+</header>
+
+<!-- 1. ABSTRACT -->
+<h2 id="abstract">Abstract</h2>
+<div class="abstract">
+  <p>
+    Content teams carry review backlogs far larger than they can clear, so the practical question is not
+    <em>which pages are declining</em> but <em>which pages to open first</em>. Using an anonymised
+    90-day snapshot of 30,000 pages across 32 pseudonymised clients from the FlyRank ML Internship
+    dataset, I built a ranked review queue and compared it against a transparent hand-written rule on
+    identical client-grouped splits. A random forest reached a precision@50 of roughly
+    <strong>0.80 (&plusmn;0.11)</strong> against a hand-rule baseline of 0.61 and a base rate of 0.49,
+    beating the rule in <strong>7 of 8 splits</strong>; a gradient-boosted model won only 5 of 8 against
+    the forest, so the added complexity was not adopted. In practical terms the queue surfaces about
+    <strong>12 more genuinely declining pages per editor-week</strong> than working the backlog in
+    arbitrary order. The output is decision support &mdash; a reading order with a stated reason on every
+    row &mdash; and it does not establish that acting on any page recovers its traffic.
+  </p>
+</div>
+
+<!-- 2. INTRODUCTION -->
+<h2 id="introduction">Introduction: the decision this supports</h2>
+<p>
+  An editor responsible for several client sites opens their week with a list far longer than the week.
+  In this dataset <strong>9,961 pages</strong> are simultaneously losing impressions and still earning
+  meaningful search visibility. At a realistic review capacity of 50 pages a week, that is roughly
+  <strong>199 weeks of backlog</strong>. Nobody clears that list. The only lever anyone actually has is
+  the order.
+</p>
+<p>
+  That reframing decides everything downstream. The work is judged at the top of the list, not on overall
+  accuracy, so the metric is precision@50 &mdash; one editor-week of queue &mdash; and never accuracy
+  without its base rate beside it.
+</p>
+<p>
+  The two ways of being wrong are not equally expensive. A false positive costs an editor one to three
+  hours on a healthy page, and it is visible: they open it, see nothing wrong, move on. A false negative
+  leaves a declining page with real traffic sliding for another quarter, and it is invisible &mdash;
+  nobody ever learns what the queue failed to show them. That asymmetry is why this system stops at
+  recommending an order and leaves every action to a person.
+</p>
+
+<!-- 3. DATA -->
+<h2 id="data">Data</h2>
+<p>
+  <strong>Release.</strong> <code>content_refresh_anonymized.csv</code> from the FlyRank ML Internship
+  dataset &mdash; 30,000 rows, one row per content item, 44 columns, across 32 pseudonymised clients.
+  Metrics cover a trailing 90-day window in a single snapshot. Identifiers are hashes; the release
+  contains no client names, domains, URLs, page titles, or raw search queries.
+</p>
+<p>
+  <strong>Warehouse support.</strong> Lane 2's documented default is &ldquo;starter playground plus
+  warehouse support&rdquo;. The window design and data contract were developed against the gated
+  warehouse release (<code>fact_content_daily_performance</code>), using March 2026 features against an
+  April 2026 outcome with a decision moment of 31 March. That exercise measured something the modelling
+  set cannot show: of 9,841,378 March page-days, only <strong>36.7%</strong> carried Search Console data
+  and <strong>4.2%</strong> carried analytics data under an <code>IS TRUE</code> availability filter.
+</p>
+
+<h3>What was excluded, and why</h3>
+<div class="scroller">
+<table>
+  <thead><tr><th>Excluded</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td><code>trend_direction</code></td><td>The label is this column, bucketed.</td></tr>
+    <tr><td><code>trend_pct</code></td><td>The label's own source &mdash; the answer in disguise.</td></tr>
+    <tr><td><code>impressions_last_30d</code>, <code>impressions_prev_30d</code></td>
+        <td><code>trend_pct</code> is defined as their ratio, so the pair reconstructs the label outright.</td></tr>
+    <tr><td>All analytics columns (warehouse)</td>
+        <td>Present on 4.2% of rows and zero-filled elsewhere, so a zero means &ldquo;not measured&rdquo;, not &ldquo;no engagement&rdquo;.</td></tr>
+    <tr><td>Hashed identifiers</td><td>Used for grouping and splitting only, never as features.</td></tr>
+    <tr><td>Pages under 500 impressions / 90 days</td>
+        <td>Below the visibility floor &mdash; no edit pays off on traffic nobody sees. These are excluded from the queue, not ranked low.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  The third row is the one worth dwelling on. Neither 30-day column is &ldquo;the label&rdquo; by name, so a
+  blocklist built on column names would have let both through. Catching it required knowing how the label
+  was constructed.
+</p>
+
+<!-- 4. METHODOLOGY -->
+<h2 id="methodology">Methodology</h2>
+<p>
+  <strong>Label.</strong> <code>is_declining_label = (trend_direction == "down")</code> &mdash; an observed
+  impressions-trend bucket computed from the 30-day change. It is not page quality, and it is not the
+  future. It is a recorded direction of travel, and every claim here inherits that limit.
+</p>
+<p>
+  <strong>Features.</strong> 18 numeric and 8 categorical columns, all knowable before the outcome:
+  search volume and competition, page depth, log-scaled traffic totals, days visible in search, content
+  age, days since last update, click-through rate, average position, and engagement rates, plus
+  categorical tiers for competition, content type, intent, age, freshness, length, impressions and position.
+</p>
+<p>
+  <strong>Baseline.</strong> A transparent hand-written rule, frozen before modelling and never retuned:
+  <code>score = weight &times; log10(impressions) &times; (1 + CTR shortfall)</code>, where the weight comes
+  from one reason code per page. Its position-band medians are fitted on training clients only, so the
+  baseline is never flattered by test data.
+</p>
+
+<h3>Validation design</h3>
+<p>
+  Splits are <strong>grouped by client</strong>, holding out 25% of clients, repeated across
+  <strong>8 different splits</strong>. Pages within a client share templates, publishing cadence and niche,
+  so a random row split lets a model score well by recognising the client rather than by learning what a
+  declining page looks like.
+</p>
+<div class="callout">
+  <p>
+    <strong>The cost of getting this wrong, measured.</strong> The identical model scored precision@50 of
+    <strong>0.96</strong> under a random row split and <strong>0.81</strong> under a client-grouped split.
+    That 0.157 gap is memorisation. The random split also reported a <em>tighter</em> spread
+    (sd 0.03 against 0.11) &mdash; it looks better and steadier at the same time, which is exactly what
+    makes it easy to believe.
+  </p>
+</div>
+
+<h3>Leakage checks</h3>
+<p>
+  A checklist that never fires proves nothing, so the suspects were added back deliberately to confirm the
+  test harness detects them. Introducing <code>trend_pct</code> moved ROC-AUC from
+  <strong>0.73 to 1.00</strong>; introducing the two 30-day impression columns moved it to
+  <strong>0.94</strong>. Both were then removed and the honest figures kept. The harness detects a leak
+  when one exists, so the reported numbers are clean because the features are clean &mdash; not because
+  the test is blind.
+</p>
+
+<!-- 5. RESULTS -->
+<h2 id="results">Results</h2>
+<p>
+  Every method below saw the same data, the same 8 client-grouped splits, and the same metric.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Method</th><th>Precision@50</th><th>sd</th><th>ROC-AUC</th></tr></thead>
+  <tbody>
+    <tr><td>Base rate (random order)</td><td class="num">0.495</td><td class="num">0.068</td><td class="num">0.500</td></tr>
+    <tr><td>Hand-written rule (baseline)</td><td class="num">0.605</td><td class="num">0.114</td><td class="num">0.583</td></tr>
+    <tr><td>Logistic regression</td><td class="num">0.735</td><td class="num">0.120</td><td class="num">0.673</td></tr>
+    <tr><td>Decision tree (depth 3)</td><td class="num">0.622</td><td class="num">0.126</td><td class="num">0.657</td></tr>
+    <tr class="highlight"><td>Random forest <em>(shipped)</em></td><td class="num">0.805</td><td class="num">0.108</td><td class="num">0.710</td></tr>
+    <tr><td>Gradient boosting</td><td class="num">0.782</td><td class="num">0.146</td><td class="num">0.712</td></tr>
+  </tbody>
+</table>
+</div>
+
+<figure>
+  <img src="img/fig1_results.png" alt="Bar chart of precision@50 for base rate 0.49, hand rule 0.60, logistic regression 0.73 and random forest 0.81, with error bars of one standard deviation.">
+  <figcaption>
+    The learned ranking roughly doubles the hit rate of random ordering at the top of the queue &mdash;
+    but the error bars overlap, so the gap between logistic regression and the forest is not a reliable
+    difference at this sample size.
+  </figcaption>
+</figure>
+
+<p>
+  Because every method saw identical splits, the stronger test is paired: how often did each actually win?
+</p>
+<ul>
+  <li><strong>Forest over the hand rule: 7 of 8 splits</strong>, mean +0.200. A real improvement.</li>
+  <li><strong>Logistic regression over the hand rule: 7 of 8</strong>, mean +0.130. Most of the gain, from the model you can read.</li>
+  <li><strong>Gradient boosting over the forest: 5 of 8</strong>, mean +0.022. A coin flip.</li>
+</ul>
+<p>
+  The last line decided what shipped. The heaviest model did not beat the lighter one reliably, so it was
+  not adopted &mdash; complexity has to earn its place, and here it did not.
+</p>
+<div class="callout caution">
+  <p>
+    <strong>The counter-example, reported rather than buried.</strong> On split 3 the hand-written rule
+    scored 0.80 and the forest 0.60. One split in eight, the simple rule won outright. That is what a
+    &ldquo;7 of 8&rdquo; win rate looks like from the inside, and it is why win counts appear here beside
+    the averages.
+  </p>
+</div>
+
+<!-- 6. LIMITATIONS -->
+<h2 id="limitations">Limitations and honest framing</h2>
+<p>
+  Written before a reader can write it for me.
+</p>
+<ul>
+  <li><strong>No causal claim is available.</strong> Nobody refreshed a random half of these pages. I observed that declining pages share certain properties. I cannot say that refreshing them recovers traffic.</li>
+  <li><strong>The label is a trend bucket</strong> &mdash; not the future, and not quality. A declining page is not a bad page.</li>
+  <li><strong>The model is weakest where it matters most.</strong> Accuracy is 0.57 on the largest-traffic tier against 0.73 on the smallest, and the top-50 queue caught <strong>0 of 259</strong> declining pages in that largest tier. High-traffic pages need a human-led process, not this queue.</li>
+  <li><strong>It cannot separate &ldquo;just arrived&rdquo; from &ldquo;on the way out&rdquo;.</strong> The most confident false positives were pages with impressions and zero clicks whose real trend was upward. A single snapshot carries no history.</li>
+  <li><strong>Small panel, wide spreads.</strong> 32 clients, 8 held out per split; precision@50 moves &plusmn;0.11 between splits. Differences smaller than that are not differences. One held-out client scored 0.445 &mdash; below a coin flip.</li>
+  <li><strong>One portfolio, one quarter.</strong> Nothing here shows the ordering transfers to a different client mix or period.</li>
+  <li><strong>An unresolved confounder.</strong> Page age may drive both staleness and decline. Permutation importance ranks age third and shuffling it costs only ~0.02 AUC, so the model is not merely an age detector &mdash; but that measures what the model leans on, not whether age confounds staleness.</li>
+</ul>
+<p>
+  Language throughout is deliberate: <em>observed</em> for patterns in this dataset, <em>directional</em>
+  for comparisons that survived repetition, <em>decision support</em> for the queue. Nothing here proves
+  anything about how any search engine ranks content.
+</p>
+
+<!-- 7. RANKED RECOMMENDATIONS -->
+<h2 id="recommendations">Ranked recommendations</h2>
+<div class="callout">
+  <p><strong>The model ranks. A readable rule names the action. A person decides.</strong></p>
+</div>
+<p>
+  A probability cannot tell anyone what to type, and a rule cannot rank 16,726 pages well. So the two jobs
+  are split: the out-of-fold model score sets the order, and a transparent archetype sets the action. Every
+  row carries a reason an editor can disagree with.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Archetype</th><th>Action</th><th>Pages</th><th>Observed decline rate</th></tr></thead>
+  <tbody>
+    <tr><td>Ranks 1&ndash;20, CTR below its position band</td><td><strong>Fix CTR</strong></td><td class="num">3,673</td><td class="num">0.701</td></tr>
+    <tr><td>Not updated in 91&ndash;180 days, still visible</td><td><strong>Refresh</strong></td><td class="num">5,081</td><td class="num">0.579</td></tr>
+    <tr><td>Just outside page 1, competitive CTR</td><td><strong>Support</strong></td><td class="num">2,040</td><td class="num">0.584</td></tr>
+    <tr><td>Ranks past position 20</td><td><strong>Monitor</strong></td><td class="num">2,485</td><td class="num">0.571</td></tr>
+    <tr><td>Visible, no flag fired</td><td><strong>Monitor</strong></td><td class="num">3,447</td><td class="num">0.531</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  Two of those archetypes encode a measured negative. Pages past position 20 are deliberately <em>not</em>
+  given a CTR action, because the CTR-versus-position relationship reversed there when it was tested
+  (below-band pages declined <em>less</em>, by 0.06). And &ldquo;no flag fired&rdquo; is an honest
+  category rather than a forced label.
+</p>
+
+<h3>The decay signal</h3>
+<figure>
+  <img src="img/fig2_decay.png" alt="Bar chart of decline rate by freshness tier: 0-30 days 0.511, 31-90 days 0.589, 91-180 days 0.611, 181+ days 0.471, with the two small-sample bars hatched.">
+  <figcaption>
+    Decline peaks 91&ndash;180 days after the last update. The hatched bars carry fewer than 1,000 pages
+    and are not reliable &mdash; note that the stalest tier <em>reverses</em>. Only the 91&ndash;180 window
+    is acted on, and this is an observed association in one snapshot, not evidence that refreshing causes recovery.
+  </figcaption>
+</figure>
+
+<h3>What it is worth</h3>
+<p>
+  At 50 reviews a week the queue surfaces about <strong>42</strong> genuinely declining pages, against
+  about <strong>30</strong> from working the backlog in arbitrary order: a net gain of roughly
+  <strong>12 better-targeted reviews per editor-week</strong>. That is a meaningful scheduling
+  improvement, not a transformation, and describing it that way is deliberate.
+</p>
+
+<h3>What must not be automated</h3>
+<p>
+  The honest gain does not justify removing the human from any of these:
+</p>
+<ul>
+  <li><strong>No automated content edits.</strong> The system ranks; a person writes.</li>
+  <li><strong>No automated pruning or deletion.</strong> Nothing here identifies a page as worthless; low visibility means &ldquo;not measurable&rdquo;, never &ldquo;delete&rdquo;.</li>
+  <li><strong>No client-facing forecasts.</strong> No row may be reported as &ldquo;this page will decline&rdquo;.</li>
+  <li><strong>No automatic handling of high-traffic pages</strong>, given the measured blind spot in that tier.</li>
+  <li><strong>No performance management.</strong> These scores reflect search-demand movement, not anyone's effort or craft.</li>
+  <li><strong>No unreviewed scoring of new clients</strong>, and <strong>no calendar job</strong> built on the freshness association.</li>
+</ul>
+
+<!-- 8. REPRODUCIBILITY -->
+<h2 id="reproducibility">Reproducibility</h2>
+<p>
+  Every number on this page is produced by notebooks in the repository this page is served from. Seeds are
+  fixed (seed 42; splits 0&ndash;7), and library versions are recorded alongside the results in
+  <a href="capstone_metrics.json">capstone_metrics.json</a>.
+</p>
+<ul>
+  <li><code>work/notebooks/capstone.ipynb</code> &mdash; mirrors this paper end to end and regenerates both figures</li>
+  <li><code>work/notebooks/w03_data_contract.ipynb</code> &mdash; the warehouse data contract and window design</li>
+  <li><code>work/notebooks/w04_baseline_score.ipynb</code> &mdash; the hand-written baseline and its signal checks</li>
+  <li><code>work/notebooks/w05_model.ipynb</code> &mdash; model comparison against the baseline</li>
+  <li><code>work/notebooks/w06_validation_audit.ipynb</code> &mdash; split audit and leakage positive controls</li>
+  <li><code>work/notebooks/w07_action_playbook.ipynb</code> &mdash; the queue, review rules and monitoring triggers</li>
+</ul>
+<p>
+  To rerun: install <code>requirements.txt</code> and run the notebooks top to bottom. Tree-ensemble
+  results shift a few points between scikit-learn versions; a rerun should reproduce the ordering and the
+  win counts rather than the third decimal.
+</p>
+
+<!-- 9. ACKNOWLEDGMENTS -->
+<h2 id="acknowledgments">Acknowledgments &amp; data credit</h2>
+<p>
+  Built on the <strong>FlyRank ML Internship dataset</strong> &mdash;
+  <a href="https://flyrank.ai" rel="noopener">flyrank.ai</a>. The anonymised release and the gated
+  warehouse release used here are provided by FlyRank for the ML internship track. All identifiers are
+  pseudonymised; no client names, domains, URLs, page titles, or raw search queries appear in the data or
+  in this write-up.
+</p>
+<p>
+  Thanks to the track leads for a curriculum that put the baseline, the validation design and the
+  limitations section before the model &mdash; which is the order that made this work worth publishing.
+</p>
+
+<footer>
+  <p>
+    FlyRank ML Internship capstone &middot; Lane 2, Refresh / Content Opportunity Scoring &middot;
+    Data credit: <a href="https://flyrank.ai" rel="noopener">flyrank.ai</a>
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
