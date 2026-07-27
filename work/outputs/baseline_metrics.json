@@ -1,0 +1,29 @@
+{
+  "rule": "weight * log10(impressions_90d) * (1 + ctr_shortfall)",
+  "visible_min_impressions": 500,
+  "n_pages": 30000,
+  "base_rate": 0.5421,
+  "precision_at_k": {
+    "10": 0.6,
+    "20": 0.5,
+    "50": 0.5,
+    "100": 0.46
+  },
+  "signal_verdicts": {
+    "staleness": "MIXED",
+    "ctr_vs_position": "MIXED"
+  },
+  "reason_code_counts": {
+    "not_visible": 13274,
+    "visible_no_flag": 5487,
+    "stale_and_visible": 5081,
+    "ctr_below_band_top20": 3673,
+    "deep_position": 2485
+  },
+  "action_counts": {
+    "SKIP": 13274,
+    "MONITOR": 7972,
+    "REFRESH": 5081,
+    "FIX_CTR": 3673
+  }
+}
