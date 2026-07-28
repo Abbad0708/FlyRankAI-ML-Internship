@@ -72,8 +72,8 @@
   <p class="kicker">FlyRank ML Internship &middot; Capstone &middot; Search Intelligence</p>
   <h1>Which pages should an editor review first?</h1>
   <p class="byline">
-    Ranking a content-refresh queue on 30,000 anonymised search-performance records &mdash;
-    and measuring, honestly, how much the ranking is worth.
+    Ranking a content-refresh queue on 30,000 anonymised search-performance records,
+    and measuring honestly how much that ranking is worth.
   </p>
   <p class="byline" style="margin-top:.85rem">
     <span class="tag">Lane 2</span><span class="tag">Ranking</span><span class="tag">Precision@50</span>
@@ -84,12 +84,12 @@
 <h2 id="abstract">Abstract</h2>
 <div class="abstract">
   <p>
-    FlyRank publishes content straight into client websites and then watches it decay &mdash; rankings
-    slip, clicks fall, and most teams notice a quarter too late. The pages that need attention are
-    already surfaced by hand-written rules: thresholds and if-this-then-that flags that work and run in
+    FlyRank publishes content straight into client websites and then watches it decay. Rankings slip,
+    clicks fall, and most teams notice a quarter too late. The pages that need attention are already
+    surfaced by hand-written rules: thresholds and if-this-then-that flags that work and run in
     production. But review backlogs are far larger than any team can clear, so the practical question is
-    not <em>which pages are declining</em> but <em>which pages to open first</em> &mdash; and that is a
-    ranking problem, exactly where a fixed rule runs out. Using an anonymised
+    not <em>which pages are declining</em> but <em>which pages to open first</em>. That is a ranking
+    problem, and it is exactly where a fixed rule runs out. Using an anonymised
     90-day snapshot of 30,000 pages across 32 pseudonymised clients from the FlyRank ML Internship
     dataset, I built a ranked review queue and compared it against a transparent hand-written rule on
     identical client-grouped splits. A random forest reached a precision@50 of roughly
@@ -97,16 +97,16 @@
     beating the rule in <strong>7 of 8 splits</strong>; a gradient-boosted model won only 5 of 8 against
     the forest, so the added complexity was not adopted. In practical terms the queue surfaces about
     <strong>12 more genuinely declining pages per editor-week</strong> than working the backlog in
-    arbitrary order. The output is decision support &mdash; a reading order with a stated reason on every
-    row &mdash; and it does not establish that acting on any page recovers its traffic.
+    arbitrary order. The output is decision support: a reading order with a stated reason on every row.
+    It does not establish that acting on any page recovers its traffic.
   </p>
 </div>
 
 <!-- 2. INTRODUCTION -->
 <h2 id="introduction">Introduction: the decision this supports</h2>
 <p>
-  FlyRank runs the full content cycle for its clients &mdash; research, write, publish into the site,
-  then watch the search data and optimise. The hard part is the last step. A page that ranked well in
+  FlyRank runs the full content cycle for its clients: research, write, publish into the site, then
+  watch the search data and optimise. The hard part is the last step. A page that ranked well in
   March quietly loses position through April and May, and the drop is only obvious once the traffic is
   already gone. The product handles this today with hand-written flags: a health score, quick-win tags,
   needs-attention markers, all built from thresholds someone chose. They work. What they cannot do is
@@ -115,7 +115,7 @@
 <p>
   That is the gap this paper works in. The rule answers <em>is this page in trouble?</em>; the editor
   needs an answer to <em>which of these do I open on Monday morning?</em> So the hand-written rule is
-  not the enemy here &mdash; it is the baseline, reimplemented transparently in
+  not the enemy here. It is the baseline, reimplemented transparently in
   <code>w04_baseline_score.ipynb</code> and given the same splits and the same metric as every model
   that tries to beat it.
 </p>
@@ -128,14 +128,14 @@
 </p>
 <p>
   That reframing decides everything downstream. The work is judged at the top of the list, not on overall
-  accuracy, so the metric is precision@50 &mdash; one editor-week of queue &mdash; and never accuracy
-  without its base rate beside it.
+  accuracy, so the metric is precision@50, one editor-week of queue, and never accuracy without its
+  base rate beside it.
 </p>
 <p>
   The two ways of being wrong are not equally expensive. A false positive costs an editor one to three
   hours on a healthy page, and it is visible: they open it, see nothing wrong, move on. A false negative
-  leaves a declining page with real traffic sliding for another quarter, and it is invisible &mdash;
-  nobody ever learns what the queue failed to show them. That asymmetry is why this system stops at
+  leaves a declining page with real traffic sliding for another quarter, and it is invisible: nobody
+  ever learns what the queue failed to show them. That asymmetry is why this system stops at
   recommending an order and leaves every action to a person.
 </p>
 
@@ -143,7 +143,7 @@
 <h2 id="data">Data</h2>
 <p>
   <strong>Release.</strong> <code>content_refresh_anonymized.csv</code> from the FlyRank ML Internship
-  dataset &mdash; 30,000 rows, one row per content item, 44 columns, across 32 pseudonymised clients.
+  dataset. It holds 30,000 rows, one row per content item, 44 columns, across 32 pseudonymised clients.
   Metrics cover a trailing 90-day window in a single snapshot. Identifiers are hashes; the release
   contains no client names, domains, URLs, page titles, or raw search queries.
 </p>
@@ -162,14 +162,14 @@
   <thead><tr><th>Excluded</th><th>Reason</th></tr></thead>
   <tbody>
     <tr><td><code>trend_direction</code></td><td>The label is this column, bucketed.</td></tr>
-    <tr><td><code>trend_pct</code></td><td>The label's own source &mdash; the answer in disguise.</td></tr>
+    <tr><td><code>trend_pct</code></td><td>The label's own source, which is the answer in disguise.</td></tr>
     <tr><td><code>impressions_last_30d</code>, <code>impressions_prev_30d</code></td>
         <td><code>trend_pct</code> is defined as their ratio, so the pair reconstructs the label outright.</td></tr>
     <tr><td>All analytics columns (warehouse)</td>
         <td>Present on 4.2% of rows and zero-filled elsewhere, so a zero means &ldquo;not measured&rdquo;, not &ldquo;no engagement&rdquo;.</td></tr>
     <tr><td>Hashed identifiers</td><td>Used for grouping and splitting only, never as features.</td></tr>
     <tr><td>Pages under 500 impressions / 90 days</td>
-        <td>Below the visibility floor &mdash; no edit pays off on traffic nobody sees. These are excluded from the queue, not ranked low.</td></tr>
+        <td>Below the visibility floor. No edit pays off on traffic nobody sees, so these are excluded from the queue rather than ranked low.</td></tr>
   </tbody>
 </table>
 </div>
@@ -182,7 +182,7 @@
 <!-- 4. METHODOLOGY -->
 <h2 id="methodology">Methodology</h2>
 <p>
-  <strong>Label.</strong> <code>is_declining_label = (trend_direction == "down")</code> &mdash; an observed
+  <strong>Label.</strong> <code>is_declining_label = (trend_direction == "down")</code>, an observed
   impressions-trend bucket computed from the 30-day change. It is not page quality, and it is not the
   future. It is a recorded direction of travel, and every claim here inherits that limit.
 </p>
@@ -211,8 +211,8 @@
     <strong>The cost of getting this wrong, measured.</strong> The identical model scored precision@50 of
     <strong>0.96</strong> under a random row split and <strong>0.81</strong> under a client-grouped split.
     That 0.157 gap is memorisation. The random split also reported a <em>tighter</em> spread
-    (sd 0.03 against 0.11) &mdash; it looks better and steadier at the same time, which is exactly what
-    makes it easy to believe.
+    (sd 0.03 against 0.11). It looks better and steadier at the same time, which is exactly what makes
+    it easy to believe.
   </p>
 </div>
 
@@ -222,8 +222,8 @@
   test harness detects them. Introducing <code>trend_pct</code> moved ROC-AUC from
   <strong>0.73 to 1.00</strong>; introducing the two 30-day impression columns moved it to
   <strong>0.94</strong>. Both were then removed and the honest figures kept. The harness detects a leak
-  when one exists, so the reported numbers are clean because the features are clean &mdash; not because
-  the test is blind.
+  when one exists, so the reported numbers are clean because the features are clean, not because the
+  test is blind.
 </p>
 
 <!-- 5. RESULTS -->
@@ -249,8 +249,8 @@
 <figure>
   <img src="img/fig1_results.png" alt="Bar chart of precision@50 for base rate 0.49, hand rule 0.60, logistic regression 0.73 and random forest 0.81, with error bars of one standard deviation.">
   <figcaption>
-    The learned ranking roughly doubles the hit rate of random ordering at the top of the queue &mdash;
-    but the error bars overlap, so the gap between logistic regression and the forest is not a reliable
+    The learned ranking roughly doubles the hit rate of random ordering at the top of the queue, but the
+    error bars overlap, so the gap between logistic regression and the forest is not a reliable
     difference at this sample size.
   </figcaption>
 </figure>
@@ -265,7 +265,7 @@
 </ul>
 <p>
   The last line decided what shipped. The heaviest model did not beat the lighter one reliably, so it was
-  not adopted &mdash; complexity has to earn its place, and here it did not.
+  not adopted. Complexity has to earn its place, and here it did not.
 </p>
 <div class="callout caution">
   <p>
@@ -283,12 +283,12 @@
 </p>
 <ul>
   <li><strong>No causal claim is available.</strong> Nobody refreshed a random half of these pages. I observed that declining pages share certain properties. I cannot say that refreshing them recovers traffic.</li>
-  <li><strong>The label is a trend bucket</strong> &mdash; not the future, and not quality. A declining page is not a bad page.</li>
+  <li><strong>The label is a trend bucket,</strong> not the future, and not quality. A declining page is not a bad page.</li>
   <li><strong>The model is weakest where it matters most.</strong> Accuracy is 0.57 on the largest-traffic tier against 0.73 on the smallest, and the top-50 queue caught <strong>0 of 259</strong> declining pages in that largest tier. High-traffic pages need a human-led process, not this queue.</li>
   <li><strong>It cannot separate &ldquo;just arrived&rdquo; from &ldquo;on the way out&rdquo;.</strong> The most confident false positives were pages with impressions and zero clicks whose real trend was upward. A single snapshot carries no history.</li>
-  <li><strong>Small panel, wide spreads.</strong> 32 clients, 8 held out per split; precision@50 moves &plusmn;0.11 between splits. Differences smaller than that are not differences. One held-out client scored 0.445 &mdash; below a coin flip.</li>
+  <li><strong>Small panel, wide spreads.</strong> 32 clients, 8 held out per split; precision@50 moves &plusmn;0.11 between splits. Differences smaller than that are not differences. One held-out client scored 0.445, below a coin flip.</li>
   <li><strong>One portfolio, one quarter.</strong> Nothing here shows the ordering transfers to a different client mix or period.</li>
-  <li><strong>An unresolved confounder.</strong> Page age may drive both staleness and decline. Permutation importance ranks age third and shuffling it costs only ~0.02 AUC, so the model is not merely an age detector &mdash; but that measures what the model leans on, not whether age confounds staleness.</li>
+  <li><strong>An unresolved confounder.</strong> Page age may drive both staleness and decline. Permutation importance ranks age third and shuffling it costs only ~0.02 AUC, so the model is not merely an age detector. But that measures what the model leans on, not whether age confounds staleness.</li>
 </ul>
 <p>
   Language throughout is deliberate: <em>observed</em> for patterns in this dataset, <em>directional</em>
@@ -331,7 +331,7 @@
   <img src="img/fig2_decay.png" alt="Bar chart of decline rate by freshness tier: 0-30 days 0.511, 31-90 days 0.589, 91-180 days 0.611, 181+ days 0.471, with the two small-sample bars hatched.">
   <figcaption>
     Decline peaks 91&ndash;180 days after the last update. The hatched bars carry fewer than 1,000 pages
-    and are not reliable &mdash; note that the stalest tier <em>reverses</em>. Only the 91&ndash;180 window
+    and are not reliable; note that the stalest tier <em>reverses</em>. Only the 91&ndash;180 window
     is acted on, and this is an observed association in one snapshot, not evidence that refreshing causes recovery.
   </figcaption>
 </figure>
@@ -365,12 +365,12 @@
   <a href="capstone_metrics.json">capstone_metrics.json</a>.
 </p>
 <ul>
-  <li><code>work/notebooks/capstone.ipynb</code> &mdash; mirrors this paper end to end and regenerates both figures</li>
-  <li><code>work/notebooks/w03_data_contract.ipynb</code> &mdash; the warehouse data contract and window design</li>
-  <li><code>work/notebooks/w04_baseline_score.ipynb</code> &mdash; the hand-written baseline and its signal checks</li>
-  <li><code>work/notebooks/w05_model.ipynb</code> &mdash; model comparison against the baseline</li>
-  <li><code>work/notebooks/w06_validation_audit.ipynb</code> &mdash; split audit and leakage positive controls</li>
-  <li><code>work/notebooks/w07_action_playbook.ipynb</code> &mdash; the queue, review rules and monitoring triggers</li>
+  <li><code>work/notebooks/capstone.ipynb</code>: mirrors this paper end to end and regenerates both figures</li>
+  <li><code>work/notebooks/w03_data_contract.ipynb</code>: the warehouse data contract and window design</li>
+  <li><code>work/notebooks/w04_baseline_score.ipynb</code>: the hand-written baseline and its signal checks</li>
+  <li><code>work/notebooks/w05_model.ipynb</code>: model comparison against the baseline</li>
+  <li><code>work/notebooks/w06_validation_audit.ipynb</code>: split audit and leakage positive controls</li>
+  <li><code>work/notebooks/w07_action_playbook.ipynb</code>: the queue, review rules and monitoring triggers</li>
 </ul>
 <p>
   To rerun: install <code>requirements.txt</code> and run the notebooks top to bottom. Tree-ensemble
@@ -381,7 +381,7 @@
 <!-- 9. ACKNOWLEDGMENTS -->
 <h2 id="acknowledgments">Acknowledgments &amp; data credit</h2>
 <p>
-  Built on the <strong>FlyRank ML Internship dataset</strong> &mdash;
+  Built on the <strong>FlyRank ML Internship dataset</strong>,
   <a href="https://flyrank.ai" rel="noopener">flyrank.ai</a>. The anonymised release and the gated
   warehouse release used here are provided by FlyRank for the ML internship track. All identifiers are
   pseudonymised; no client names, domains, URLs, page titles, or raw search queries appear in the data or
@@ -389,7 +389,7 @@
 </p>
 <p>
   Thanks to the track leads for a curriculum that put the baseline, the validation design and the
-  limitations section before the model &mdash; which is the order that made this work worth publishing.
+  limitations section before the model. That order is what made this work worth publishing.
 </p>
 
 <footer>
